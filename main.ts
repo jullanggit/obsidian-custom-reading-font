@@ -1,4 +1,11 @@
-import { App, Plugin, PluginSettingTab, Setting, TFile } from "obsidian";
+import {
+	App,
+	Plugin,
+	PluginSettingTab,
+	Setting,
+	TFile,
+	MarkdownView,
+} from "obsidian";
 
 export default class CustomReadingFontPlugin extends Plugin {
 	settings: CustomReadingFontSettings;
