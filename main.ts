@@ -5,16 +5,19 @@ import {
 	Setting,
 	TFile,
 	MarkdownView,
+	normalizePath,
 } from "obsidian";
 
 export default class CustomReadingFontPlugin extends Plugin {
 	settings: CustomReadingFontSettings;
-	private compiledPathRegex = new RegExp(DEFAULT_SETTINGS.pathRegex);
+	private compiledPathRegex = new RegExp("");
 
 	async onload() {
 		await this.loadSettings();
 
 		this.injectStyle();
+
+		this.compileRegex();
 
 		this.registerEvent(
 			this.app.workspace.on("file-open", () => {
@@ -40,7 +43,10 @@ export default class CustomReadingFontPlugin extends Plugin {
 	async saveSettings() {
 		await this.saveData(this.settings);
 
-		// compile regex
+		this.compileRegex();
+	}
+
+	async compileRegex() {
 		try {
 			this.compiledPathRegex = new RegExp(this.settings.pathRegex);
 		} catch (e) {
@@ -159,7 +165,8 @@ class CustomReadingFontSettingsTab extends PluginSettingTab {
 					.setPlaceholder(DEFAULT_SETTINGS.fontPath ?? "")
 					.setValue(this.plugin.settings.fontPath ?? "")
 					.onChange(async (value) => {
-						this.plugin.settings.fontPath = value || null;
+						this.plugin.settings.fontPath =
+							normalizePath(value) || null;
 						await this.plugin.saveSettings();
 					}),
 			);
