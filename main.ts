@@ -124,7 +124,7 @@ class CustomReadingFontSettingsTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("Path Regex")
+			.setName("Path regex")
 			.setDesc(
 				"Regex to control which files the font should be enabled for",
 			)
@@ -139,7 +139,7 @@ class CustomReadingFontSettingsTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Font Family")
+			.setName("Font family")
 			.setDesc("Which font family to use")
 			.addText((text) =>
 				text
@@ -152,7 +152,7 @@ class CustomReadingFontSettingsTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Font Path")
+			.setName("Font path")
 			.setDesc("Optional path to a font file inside the vault")
 			.addText((text) =>
 				text
