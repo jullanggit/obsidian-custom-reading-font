@@ -1,7 +1,7 @@
 {
 	"id": "custom-reading-font",
 	"name": "Custom Reading Font",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "Select a custom font for Obsidians reading view",
 	"author": "jullang",
