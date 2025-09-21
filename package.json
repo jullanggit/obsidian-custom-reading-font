@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-custom-reading-font",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"description": "Select a custom font for Obsidians reading view",
 	"main": "main.js",
 	"scripts": {
