@@ -103,7 +103,7 @@ export default class CustomReadingFontPlugin extends Plugin {
 				this.settings.readingViewOnly
 					? ``
 					: `/* source mode */
-						.markdown-source-view {
+						.markdown-source-view, .markdown-source-view * {
 						font-family: '${this.settings.fontFamily}';
 					}`
 			}
