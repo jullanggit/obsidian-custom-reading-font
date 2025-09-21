@@ -1,13 +1,4 @@
-import {
-	App,
-	Editor,
-	MarkdownView,
-	Modal,
-	Notice,
-	Plugin,
-	PluginSettingTab,
-	Setting,
-} from "obsidian";
+import { App, Plugin, PluginSettingTab, Setting, TFile } from "obsidian";
 
 export default class CustomReadingFontPlugin extends Plugin {
 	settings: CustomReadingFontSettings;
@@ -15,11 +6,20 @@ export default class CustomReadingFontPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
+		this.injectStyle();
+
+		this.registerEvent(
+			this.app.workspace.on("file-open", () => {
+				this.injectStyle();
+			}),
+		);
+
 		this.addSettingTab(new CustomReadingFontSettingsTab(this.app, this));
 	}
 
-	onunload() {}
+	onunload() {
+		document.getElementById("custom-reading-font-style")?.remove();
+	}
 
 	async loadSettings() {
 		this.settings = Object.assign(
@@ -31,9 +31,67 @@ export default class CustomReadingFontPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+		this.injectStyle();
 	}
 
-	async injectStyle() {}
+	async injectStyle() {
+		document.getElementById("custom-reading-font-style")?.remove();
+
+		if (!this.settings.pathRegex) return;
+
+		let fontFaceRule = "";
+		let fontName = this.settings.fontFamily;
+
+		// build font face rule
+		if (this.settings.fontPath) {
+			const file = this.app.vault.getAbstractFileByPath(
+				this.settings.fontPath,
+			);
+			if (file instanceof TFile) {
+				const fontUrl = this.app.vault.getResourcePath(file);
+				fontFaceRule = `
+					@font-face {
+						font-family: '${fontName}';
+						src: url('${fontUrl}');
+						font-weight: normal;
+						font-style: normal;
+					}
+				`;
+			}
+		}
+
+		// Build regex
+		// TODO: see if this can be done on setting the setting
+		let regex: RegExp;
+		try {
+			regex = new RegExp(this.settings.pathRegex);
+		} catch (e) {
+			console.error("Invalid regex in CustomReadingFontPlugin:", e);
+			return;
+		}
+
+		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+		if (!view) return;
+
+		const file = view.file;
+		if (!file) return;
+
+		const matches = regex.test(file.path);
+		if (!matches) return;
+
+		const style = document.createElement("style");
+		style.id = "custom-reading-font-style";
+		style.textContent = `
+			${fontFaceRule}
+
+			/* Only affect reading mode */
+			.markdown-reading-view {
+				font-family: '${fontName}';
+			}
+		`;
+
+		document.head.appendChild(style);
+	}
 }
 
 interface CustomReadingFontSettings {
@@ -43,7 +101,7 @@ interface CustomReadingFontSettings {
 }
 
 const DEFAULT_SETTINGS: CustomReadingFontSettings = {
-	pathRegex: "Books\/.*",
+	pathRegex: "Books\\/.*",
 	fontFamily: "Fast_Serif",
 	fontPath: "Fonts/Fast_Serif.ttf",
 };
@@ -58,7 +116,6 @@ class CustomReadingFontSettingsTab extends PluginSettingTab {
 
 	display(): void {
 		const { containerEl } = this;
-
 		containerEl.empty();
 
 		new Setting(containerEl)
@@ -91,13 +148,13 @@ class CustomReadingFontSettingsTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Font Path")
-			.setDesc("Optional path to the font file")
+			.setDesc("Optional path to a font file inside the vault")
 			.addText((text) =>
 				text
-					.setPlaceholder(DEFAULT_SETTINGS.fontPath)
-					.setValue(this.plugin.settings.fontPath)
+					.setPlaceholder(DEFAULT_SETTINGS.fontPath ?? "")
+					.setValue(this.plugin.settings.fontPath ?? "")
 					.onChange(async (value) => {
-						this.plugin.settings.fontPath = value;
+						this.plugin.settings.fontPath = value || null;
 						await this.plugin.saveSettings();
 					}),
 			);
