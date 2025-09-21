@@ -9,6 +9,7 @@ import {
 
 export default class CustomReadingFontPlugin extends Plugin {
 	settings: CustomReadingFontSettings;
+	private compiledPathRegex = new RegExp(DEFAULT_SETTINGS.pathRegex);
 
 	async onload() {
 		await this.loadSettings();
@@ -38,6 +39,14 @@ export default class CustomReadingFontPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+
+		// compile regex
+		try {
+			this.compiledPathRegex = new RegExp(this.settings.pathRegex);
+		} catch (e) {
+			console.error("Invalid regex in CustomReadingFontPlugin:", e);
+		}
+
 		this.injectStyle();
 	}
 
@@ -66,23 +75,13 @@ export default class CustomReadingFontPlugin extends Plugin {
 			}
 		}
 
-		// Build regex
-		// TODO: see if this can be done on setting the setting
-		let regex: RegExp;
-		try {
-			regex = new RegExp(this.settings.pathRegex);
-		} catch (e) {
-			console.error("Invalid regex in CustomReadingFontPlugin:", e);
-			return;
-		}
-
 		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
 		if (!view) return;
 
 		const file = view.file;
 		if (!file) return;
 
-		const matches = regex.test(file.path);
+		const matches = this.compiledPathRegex.test(file.path);
 		if (!matches) return;
 
 		const style = document.createElement("style");
