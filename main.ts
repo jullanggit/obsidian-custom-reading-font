@@ -92,7 +92,7 @@ export default class CustomReadingFontPlugin extends Plugin {
 			${fontFaceRule}
 
 			/* Only affect reading mode */
-			.markdown-reading-view {
+			.markdown-preview-view {
 				font-family: '${fontName}';
 			}
 		`;
