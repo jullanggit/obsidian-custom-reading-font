@@ -47,7 +47,6 @@ export default class CustomReadingFontPlugin extends Plugin {
 		if (!this.settings.pathRegex) return;
 
 		let fontFaceRule = "";
-		let fontName = this.settings.fontFamily;
 
 		// build font face rule
 		if (this.settings.fontPath) {
@@ -58,7 +57,7 @@ export default class CustomReadingFontPlugin extends Plugin {
 				const fontUrl = this.app.vault.getResourcePath(file);
 				fontFaceRule = `
 					@font-face {
-						font-family: '${fontName}';
+						font-family: '${this.settings.fontFamily}';
 						src: url('${fontUrl}');
 						font-weight: normal;
 						font-style: normal;
@@ -93,7 +92,7 @@ export default class CustomReadingFontPlugin extends Plugin {
 
 			/* Only affect reading mode */
 			.markdown-preview-view {
-				font-family: '${fontName}';
+				font-family: '${this.settings.fontFamily}';
 			}
 		`;
 
