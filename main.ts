@@ -95,9 +95,17 @@ export default class CustomReadingFontPlugin extends Plugin {
 		style.textContent = `
 			${fontFaceRule}
 
-			/* Only affect reading mode */
+			/* reading mode */
 			.markdown-preview-view {
 				font-family: '${this.settings.fontFamily}';
+			}
+			${
+				this.settings.readingViewOnly
+					? ``
+					: `/* source mode */
+						.markdown-source-view {
+						font-family: '${this.settings.fontFamily}';
+					}`
 			}
 		`;
 
@@ -109,12 +117,14 @@ interface CustomReadingFontSettings {
 	pathRegex: string;
 	fontFamily: string;
 	fontPath: string | null;
+	readingViewOnly: boolean;
 }
 
 const DEFAULT_SETTINGS: CustomReadingFontSettings = {
 	pathRegex: "Books\\/.*",
 	fontFamily: "Fast_Serif",
 	fontPath: "Fonts/Fast_Serif.ttf",
+	readingViewOnly: true,
 };
 
 class CustomReadingFontSettingsTab extends PluginSettingTab {
@@ -167,6 +177,20 @@ class CustomReadingFontSettingsTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.fontPath =
 							normalizePath(value) || null;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Reading view only")
+			.setDesc(
+				"Whether to use the font in reading view only, or also in edit mode",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.readingViewOnly)
+					.onChange(async (value) => {
+						this.plugin.settings.readingViewOnly = value;
 						await this.plugin.saveSettings();
 					}),
 			);
