@@ -46,7 +46,7 @@ export default class CustomReadingFontPlugin extends Plugin {
 		this.compileRegex();
 	}
 
-	async compileRegex() {
+	compileRegex() {
 		try {
 			this.compiledPathRegex = new RegExp(this.settings.pathRegex);
 		} catch (e) {
@@ -56,7 +56,7 @@ export default class CustomReadingFontPlugin extends Plugin {
 		this.injectStyle();
 	}
 
-	async injectStyle() {
+	injectStyle() {
 		document.getElementById("custom-reading-font-style")?.remove();
 
 		if (!this.settings.pathRegex) return;
@@ -99,10 +99,9 @@ export default class CustomReadingFontPlugin extends Plugin {
 			.markdown-preview-view {
 				font-family: '${this.settings.fontFamily}';
 			}
-			${
-				this.settings.readingViewOnly
-					? ``
-					: `/* source mode */
+			${this.settings.readingViewOnly
+				? ``
+				: `/* source mode */
 						.markdown-source-view, .markdown-source-view * {
 						font-family: '${this.settings.fontFamily}';
 					}`
